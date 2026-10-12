@@ -1,77 +1,61 @@
 # ProDriver Sim
 
-**ProDriver Sim** is a physics-based LED driver and fixture simulation tool developed by an intern at **LUX Dynamics** to significantly speed up LED fixture testing and reduce iteration time between simulation and bench validation.
+ProDriver Sim is a Python desktop and command-line tool for estimating the electrical operating point of an LED driver and LED module from **JSON configuration curves**. Developed as a test-support project at LUX Dynamics. The current public source provides deterministic calculations; it is not a calibrated digital twin of all driver behaviors.
 
-The tool models real LED drivers and LED boards using measured electrical curves, grid voltage variability, and realistic loss mechanisms. It allows engineers to predict output voltage, current, power, efficiency, and input power before hardware testing, enabling faster design decisions and better correlation with lab data.
+## Implemented in the current code
 
----
+- Load driver and LED-module profiles from JSON.
+- Interpolate module voltage against programmed module current, allowing for series/parallel quantities in the profile.
+- Calculate DC output power: `Pout = Vmodule * Imodule`.
+- Estimate driver efficiency from available power, load-percentage and voltage efficiency lookup curves, with limits of 50–98% in the source.
+- Estimate AC input power as `Pin = Pout / efficiency`.
+- Report **warnings** for input voltage, regulation voltage, driver power and LED/module current limits. The current `simulate()` function **does not automatically clamp** the operating point to a safe level.
+- Use PyQt6 for a desktop interface, or run without PyQt6 using the command-line mode.
 
-## Key Features
+## Files
 
-- **Physics-based driver modeling**
-  - Efficiency vs load, output voltage, and output power
-  - Input voltage limits, power limiting, and output clipping
-  - Fixed losses, AC line losses, and efficiency biasing
+| Path | Purpose |
+|---|---|
+| `main.py` | Simulation, JSON parsing, CLI, and optional desktop UI |
+| `BST1.json` | Example archived driver configuration |
+| `HO7_4800lm.json`, `HO7_6400lm.json`, `HO7_1'_4800lm.json` | Archived LED module configuration files |
+| `driver_sim.db` | Database present in archive; the current `main.py` does **not** query it |
+| `main.spec` | PyInstaller recipe |
 
-- **LED board modeling**
-  - Interpolated IV curves
-  - Series and parallel board configurations
-  - Board-level voltage, current, and power breakdowns
+## Run
 
-- **Grid voltage calibration**
-  - Input real measured grid voltages
-  - Automatic outlier rejection
-  - Runtime sampling of grid variability using mean and standard deviation
+Python 3.10+ recommended. The command-line model uses only Python's standard library.
 
-- **Fixture simulation**
-  - Adjustable programmed current
-  - Single-board or multi-board operation
-  - Real-time status reporting for fault and limit conditions
+```bash
+git clone https://github.com/kalarcon775/ProDriver-Sim.git
+cd ProDriver-Sim
+python main.py --driver BST1.json --module HO7_4800lm.json --current 0.6 --input-v 120
+```
 
-- **Measured data comparison**
-  - Compare simulated output voltage and input power against lab measurements
-  - Instant delta calculations for validation and tuning
+For the desktop interface, install PyQt6 and launch without CLI options:
 
-- **Live visualization**
-  - Real-time output power plot
-  - Automatic scaling based on driver power limits
+```bash
+python -m pip install PyQt6
+python main.py
+```
 
-- **Profile management**
-  - Load and save driver, board, and fixture configurations via JSON
-  - No source code changes required to add new hardware models
+No SciPy, NumPy or Matplotlib import appears in the current `main.py` source. That does **not** guarantee this legacy application has been tested with every Python/PyQt environment.
 
----
+## What is not implemented or not independently validated
 
-## Intended Use
+Some previously documented features describe future or different versions. The **current source does not** include:
+- Randomized AC grid-voltage sampling or outlier rejection.
+- Independent mains/driver AC-loss or fixed-loss calculation.
+- Applied thermal derating even though some JSON profiles contain thermal curves.
+- Calibration, device-specific uncertainty propagation, or automated measurement-file correlation.
+- Guaranteed power-limit clipping; out-of-range operating points are reported as issues.
 
-This tool is designed for practical engineering workflows including:
-- LED fixture design verification  
-- Driver comparison and selection  
-- Pre-test validation before lab bring-up  
-- Simulation-to-measurement correlation  
+The archived curve points may have been drawn from earlier engineering work, but their original instrument measurements, fit quality, calibration, and uncertainty have not been independently recovered in this repository. Predictions are estimates, **not verified bench results**. Do not use an out-of-range result as a safe fixture configuration.
 
-It is not intended as an idealized academic simulator but as a fast, realistic engineering aid.
+## Engineering recovery documentation
 
----
+The [portfolio recovery directory](https://github.com/kalarcon775/kalarcon775.github.io/tree/main/projects/prodriver) contains an annotated architecture, calculations, verification matrix, and independently recreated offline tests. It links to this original source without duplicating corporate configuration files.
 
-## Requirements
+## Attribution
 
-- Python 3.10+
-- PyQt6
-- NumPy
-- SciPy
-- Matplotlib
-
-Install dependencies with:
-```bashRunning the Application
-
-
-Ensure driver and board JSON profiles are available in the working directory or loaded through the UI.
-
-Extensibility
-New LED drivers and boards can be added by defining their electrical characteristics in JSON files. Thermal modeling hooks are intentionally stubbed for future expansion.
-
-Author
-Kailani Alarcon
-Engineering Intern, LUX Dynamics
-pip install pyqt6 numpy scipy matplotlib
+Original application and archived public profiles by Kailani Alarcon, developed during work at LUX Dynamics. Later engineering recovery work is identified separately.
