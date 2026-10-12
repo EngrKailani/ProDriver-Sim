@@ -27,7 +27,7 @@ ProDriver Sim is a Python desktop and command-line tool for estimating the elect
 Python 3.10+ recommended. The command-line model uses only Python's standard library.
 
 ```bash
-git clone https://github.com/kalarcon775/ProDriver-Sim.git
+git clone https://github.com/EngrKailani/ProDriver-Sim.git
 cd ProDriver-Sim
 python main.py --driver BST1.json --module HO7_4800lm.json --current 0.6 --input-v 120
 ```
@@ -54,7 +54,7 @@ The archived curve points may have been drawn from earlier engineering work, but
 
 ## Engineering recovery documentation
 
-The [portfolio recovery directory](https://github.com/kalarcon775/kalarcon775.github.io/tree/main/projects/prodriver) contains an annotated architecture, calculations, verification matrix, and independently recreated offline tests. It links to this original source without duplicating corporate configuration files.
+The [portfolio recovery directory](https://github.com/EngrKailani/engrkailani.github.io/tree/main/projects/prodriver) contains an annotated architecture, calculations, verification matrix, and independently recreated offline tests. It links to this original source without duplicating corporate configuration files.
 
 ## Attribution
 
